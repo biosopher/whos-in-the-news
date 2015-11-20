@@ -1,18 +1,79 @@
 {% extends "layout.html" %}
 {% block body %}
 
+<div style="margin-left:10px;margin-top:10px">
 
+    <div style="margin-bottom:10px">
+        <div style="margin-bottom:5px;float:left">
+            <div style="font-weight: bold">Query By:</div>
 
+            <input type="radio" name="query_type" value="entities" id="query_type_entities" checked> Entities
+            <br>
+            <input type="radio" name="query_type" value="relationship"> Relationship
+        </div>
+        <div style="float:left">
+            <div id="entity_query_wrapper" style="padding-left:20px;padding-top:20px">
+                <div>
+                    <span style="margin-left:25px">Entity</span>
+                    <select id="entity-options" name="entity-options" style="width:225px"><select/>
+                </div>
 
-<div id="loading" style="text-align: center; width: 50%; margin: auto; padding-top: 100px;">
-<h2>Loading...</h2>
-<div class="progress">
-    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%; border:4px solid #FFF;">
+                <div>
+                    Subentity
+                    <select id="subentity-options" name="subentity-options" style="width:225px"><select/>
+                </div>
+            </div>
+
+            <div id="relationship_query_wrapper" style="display:none;padding-left:20px;padding-top:20px">
+                <div>
+                    <span style="margin-left:15px">Subject</span>
+                    <select id="subject-options" name="subject-options" style="width:225px"><select/>
+                </div>
+                <div style="margin-top:5px;margin-bottom:5px">
+                    <span style="margin-left:35px">Verb</span>
+                    <input type="text" id="verb_text" style="width:225px" value="acquires">
+                </div>
+                <div>
+                    <span style="margin-left:20px">Object</span>
+                    <select id="object-options" name="object-options" style="width:225px"><select/>
+                </div>
+            </div>
+        </div>
+        <div style="clear:both"/>
+
+        <div style="margin-bottom:10px">
+            <div style="font-weight: bold">Sentiment:</div>
+            <input type="radio" name="sentiment" value="all" checked>&nbsp;All Sentiment
+            <br>
+            <input type="radio" name="sentiment" value="positive" id="sentiment_type_positive">&nbsp;Positive Sentiment (>0.65)
+            <br>
+            <input type="radio" name="sentiment" value="negative" id="sentiment_type_negative">&nbsp;Negative Sentiment (<0.35)
+            <br>
+        </div>
+        <div style="font-weight: bold">Time Span (before now):</div>
+        <select id="timespan-options" name="timespan-options" style="width:100px;margin-right:10px;margin-bottom:10px">
+            <option value="1h">1 hour</option>
+            <option value="6h">6 hours</option>
+            <option value="12h">12 hours</option>
+            <option value="12h" selected="selected">1 day</option>
+            <option value="12h">3 days</option>
+            <option value="7d">7 days</option>
+            <option value="14d">14 days</option>
+            <option value="28d">28 days</option>
+            <option value="60d">60 days</option>
+        <select/>
+        <br>
+        <input class="button1" type="submit" value="Submit" onClick="loadImages()">
     </div>
-</div> 
 </div>
 
-
+<div id="loading" style="text-align: center; width: 50%; margin: auto; padding-top: 100px;">
+    <h2>Loading...</h2>
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%; border:4px solid #FFF;">
+        </div>
+    </div>
+</div>
 
 <section class="Collage effect-parent">
 
@@ -20,38 +81,154 @@
 
 <script>
 
+$(document).ready(function()
+{
+    $("#entity-options").change(function(){
+        updateSubEntitySelector()
+    });
+
+    $("input[name='query_type']").change(function(){
+        if($(this).is(":checked") && $(this).val() == "entities")
+        {
+            $('#entity_query_wrapper').show();
+            $('#relationship_query_wrapper').hide();
+        }
+        else
+        {
+            $('#relationship_query_wrapper').show();
+            $('#entity_query_wrapper').hide();
+        }
+    });
+
+    loadSelectors();
+});
+
+var entities = {};
+function updateSubEntitySelector()  {
+
+    // Clear prior options
+    var subEntityOptions = $('#subentity-options');
+    subEntityOptions.find('option').remove();
+
+    // Add 'none' option
+    subEntityOptions.append($('<option>', {
+        value: "None",
+        text : "None"
+    }));
+
+    // Add other options
+    var selEntityName = $( "#entity-options option:selected" ).val().toLowerCase();
+    $.each(entities, function (name, entity) {
+        if (selEntityName == name.toLowerCase()) {
+            $.each(entity.subtypes, function (i, subentity) {
+                subEntityOptions.append($('<option>', {
+                    value: subentity,
+                    text : subentity
+                }));
+            });
+        }
+    });
+}
+
+function createEntityArray(csvData)  {
+    var dataRows = csvData.toString().split(/\r\n|\n|\r/);
+    for (var i = 0; i < dataRows.length; i++) {
+        var dataCells = dataRows[i].toString().split(",");
+        var eName = dataCells[0];
+        if (eName) {
+            if (!entities[eName]) {
+                entities[eName] = {};
+                entities[eName].name = eName;
+                entities[eName].subtypes = [];
+            }
+            entities[eName].subtypes[entities[eName].subtypes.length] = dataCells[1];
+        }
+    }
+
+    addEntities('#entity-options', entities, "person");
+    addEntities('#subject-options', entities, "company");
+    addEntities('#object-options', entities, "company");
+    updateSubEntitySelector();
+    loadImages();
+}
+
+function addEntities(selectName, entities, defaultEntity) {
+    $.each(entities, function (eName, entity) {
+        $(selectName).append($('<option>', {
+            value: eName,
+            text : eName
+        }));
+        if (eName.toLowerCase() == defaultEntity) {
+            $(selectName + ' option:contains(' + eName + ')').prop('selected', true)
+        }
+    });
+}
+
+function loadSelectors() {
+
+    $.get("data/entities.csv", function (data) {
+        createEntityArray(data);
+    });
+}
+
 function imgError(image) {
     image.onerror = "";
-    image.src = "{{ url_for('static', filename='noimage.png') }}";
+    image.src = "{{ url_for('static', filename='images/noimage.png') }}";
     return true;
 }
 
+function loadImages() {
 
-$.get("{{ url_for('images') }}",
-         function (data) {
+    // Clear prior images
+    $('.Collage').html("");
+    $('#loading').show();
 
-        $('.Collage').html(data).waitForImages(function() {
+    // Sentiment
+    var sentiment = "all";
+    if($("#sentiment_type_positive").is(":checked")) {
+        sentiment = "positive";
+    }else if($("#sentiment_type_negative").is(":checked")) {
+        sentiment = "negative";
+    }
+
+    // Query Type
+    var timespan = $( "#timespan-options option:selected" ).val();
+    if($("#query_type_entities").is(":checked")) {
+        var entity = $( "#entity-options option:selected" ).val().toLowerCase();
+        var subentity = $( "#subentity-options option:selected" ).val().toLowerCase();
+        var imageUrl = "{{ url_for('images') }}" + "?timespan=" + timespan + "&entity=" + entity + "&subentity=" + subentity + "&sentiment=" + sentiment;
+    }else{
+        var subject = $( "#subject-options option:selected" ).val().toLowerCase();
+        var verb = $( "#verb_text" ).val().toLowerCase();
+        var object = $( "#object-options option:selected" ).val().toLowerCase();
+        var imageUrl = "{{ url_for('images') }}" + "?timespan=" + timespan + "&subject=" + subject + "&verb=" + verb + "&object=" + object;
+    }
+
+    console.log(imageUrl);
+    $.get(imageUrl, function (data) {
+
+        if (!data || data.length == 0) {
             $('#loading').hide();
-            collage();
-            $('.Collage').collageCaption();
-        
-  
+            $('.Collage').html("<div style='font-weight:bold;color:red'>No results found. Try increasing your time span.</div>");
+        }else{
+            $('.Collage').html(data).waitForImages(function() {
+                $('#loading').hide();
+                collage();
+                $('.Collage').collageCaption();
 
-
-    // Here we apply the actual CollagePlus plugin
-    function collage() {
-        $('.Collage').collagePlus(
-            {
-                'effect'     : 'effect-1',
-                'allowPartialLastRow' : false,
-                'targetHeight'  : 300
+                // Here we apply the actual CollagePlus plugin
+                function collage() {
+                    $('.Collage').collagePlus(
+                    {
+                        'effect'     : 'effect-1',
+                        'allowPartialLastRow' : false,
+                        'targetHeight'  : 300
+                    });
+                }
             });
         }
-     });
-   });     
-       
-  
-
+    });
+}
 </script>
 
 {% endblock %}
