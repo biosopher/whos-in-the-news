@@ -20,7 +20,7 @@ Monitor your remaining transactions carefully.  Each API call typically consumes
 
 Check your remaning transactions with this query.  `Replace <api_key> with your api key.`:
 ```
-curl -X GET http://gateway-a.watsonplatform.net/calls/url/URLGetTextSentiment?outputMode=json&apikey=<api_key>
+curl -X GET http://gateway-a.watsonplatform.net/calls/url/URLGetTextSentiment?apikey=<api_key>
 ```
 
 
