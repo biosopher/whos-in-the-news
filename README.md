@@ -20,7 +20,16 @@ Monitor your remaining transactions carefully.  Each API call typically consumes
 
 Check your remaning transactions with this query.  `Replace <api_key> with your api key.`:
 ```
-curl -X GET http://gateway-a.watsonplatform.net/calls/url/URLGetTextSentiment?apikey=<api_key>
+curl -curl -i http://access.alchemyapi.com/calls/info/GetAPIKeyInfo?apikey=<api_key>
+```
+You'll receive your daily usage plus transaction limit in the returned json:
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+    <status>OK</status>
+    <consumedDailyTransactions>0</consumedDailyTransactions>
+    <dailyTransactionLimit>100000</dailyTransactionLimit>
+</results>
 ```
 
 
