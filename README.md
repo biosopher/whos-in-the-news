@@ -22,7 +22,7 @@ Check your remaning transactions with this query.  `Replace <api_key> with your 
 ```
 curl -i http://access.alchemyapi.com/calls/info/GetAPIKeyInfo?apikey=<api_key>
 ```
-You'll receive your daily usage plus transaction limit in the returned json:
+You'll receive your daily usage plus transaction limit in the returned xml:
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <results>
