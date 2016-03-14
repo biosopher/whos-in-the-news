@@ -35,6 +35,9 @@ You'll receive your daily usage plus transaction limit in the returned xml:
     <dailyTransactionLimit>100000</dailyTransactionLimit>
 </results>
 ```
+#### Disclaimer
+The techniques and code shared are my own and don't necessarily represent IBM's position, strategies or opinions. Anyone is free to use, copy, distribute, modify or sell the source code and other materials shown in this video and it is provided "as is" without warranties. I am not responsible for any harm or damage caused to your computer, software or anything else caused by this material.
+
 
 
 
