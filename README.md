@@ -20,9 +20,9 @@ After that, access the application locally at port 8000: [http://localhost:8000]
 The best way to learn is to download the code, break it, then extend it to do something new.  A great reference to start ideating new ways of looking at this news is this [list of Alchemy News API fields](https://alchemyapi.readme.io/docs/full-list-of-supported-news-api-fields).  There are over 400 different facets to perform your queries.
 
 #### Track your Transactions
-Monitor your remaining transactions carefully.  Each API call typically consumes >1 transaction.  E.g. a query for News about people that are actors for 7 days might cost 25 transaction.  And asking that same query over 28 days could costs 4x as much.  So be careful and make each query over a limited # of days to start.
+Monitor your remaining transactions carefully.  Each API call typically consumes >1 transaction.  E.g. a query for News about people that are actors for 7 days might cost 50 transactions.  And asking that same query over 28 days could costs 4x as much.  So be careful and make each query over a limited # of days to start.
 
-Check your remaning transactions with this query.  `Replace <api_key> with your api key.`:
+Check your remaining transactions with this query.  `Replace <api_key> with your api key`:
 ```
 curl -i http://access.alchemyapi.com/calls/info/GetAPIKeyInfo?apikey=<api_key>
 ```
